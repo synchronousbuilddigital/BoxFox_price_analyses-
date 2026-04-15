@@ -70,7 +70,7 @@ export default function PricingCalculator({ data }) {
         rates,
       })
     } catch (e) { console.error('Pricing error:', e); return null }
-  }, [product, qty, gsm, mat, brand, customRate, colours, sides, lam, addon, die, markup])
+  }, [product, qty, gsm, mat, brand, customRate, colours, sides, lam, addon, die, markup, rates])
 
   const lamRate = LAM_RATES[lam] ?? 0
 
@@ -159,9 +159,13 @@ export default function PricingCalculator({ data }) {
         <div className="fg">
           <label>Sale Type (Markup)</label>
           <select value={markup} onChange={e => setMarkup(e.target.value)}>
-            {Object.entries(MARKUP_TYPES).map(([k, v]) => (
-              <option key={k} value={k}>{k} ({(v*100).toFixed(0)}%)</option>
-            ))}
+            {Object.keys(MARKUP_TYPES).map(k => {
+              const pct = k === 'Retail'    ? (rates?.markup_retail    ?? MARKUP_TYPES['Retail'])
+                        : k === 'Corporate' ? (rates?.markup_corporate ?? MARKUP_TYPES['Corporate'])
+                        : k === 'Special'   ? (rates?.markup_special   ?? MARKUP_TYPES['Special'])
+                        : 0
+              return <option key={k} value={k}>{k} ({(pct*100).toFixed(0)}%)</option>
+            })}
           </select>
         </div>
       </div>

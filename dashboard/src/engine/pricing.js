@@ -284,8 +284,14 @@ export function calculatePrice({
   // Subtotal per unit = (base + lam + addon) × double_charges
   const subtotalPerUnit = (AG2 + lamPerUnit + addonPerUnit) * dblChg
 
-  // Markup
-  const markup       = MARKUP_TYPES[markupType] ?? MARKUP_TYPES['Retail']
+  // Markup — use live rates from sheet if available, else hardcoded fallback
+  const markupMap = {
+    'Retail':    rates?.markup_retail    ?? MARKUP_TYPES['Retail'],
+    'Corporate': rates?.markup_corporate ?? MARKUP_TYPES['Corporate'],
+    'Special':   rates?.markup_special   ?? MARKUP_TYPES['Special'],
+    'None':      0,
+  }
+  const markup       = markupMap[markupType] ?? MARKUP_TYPES['Retail']
   const finalPerUnit = subtotalPerUnit * (1 + markup)
   const finalTotal   = ru(finalPerUnit * qty)
 

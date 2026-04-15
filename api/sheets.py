@@ -62,8 +62,7 @@ def fetch_rates() -> dict:
         # Plate prices per colour (Price!Y15=250 for 1926, Z15=275 for 2029)
         "plate_1926":   p(15, 25),   # Y15 = Normal Plate 19*26
         "plate_2029":   p(15, 26),   # Z15 = Normal Plate 20*29
-        "plate_2840":   650.0,       # 28*40 plate
-        # Lamination / coating rates (per sq cm per sheet)
+        "plate_2840":   650.0,       # 28*40 plate        # Lamination / coating rates (per sq cm per sheet)
         "lam_thermal":      p(2, 20),   # T2
         "lam_gloss":        p(2, 19),   # S2
         "lam_matt":         p(3, 19),   # S3
@@ -83,6 +82,24 @@ def fetch_rates() -> dict:
         "half_cut":         p(7, 23),   # W7
         "cutting":          p(7, 24),   # X7
     }
+
+    # Markup rates from Sheet2 (X33=Retail, X34=Corporate, X35=Special)
+    try:
+        s2  = sh.worksheet("Sheet2")
+        s2v = s2.get_all_values(value_render_option="FORMATTED_VALUE")
+        def s2p(r, c):
+            try:
+                return _parse_num(s2v[r-1][c-1])
+            except IndexError:
+                return None
+        retail    = s2p(33, 24)  # X33
+        corporate = s2p(34, 24)  # X34
+        special   = s2p(35, 24)  # X35
+        if retail:    rates["markup_retail"]    = retail
+        if corporate: rates["markup_corporate"] = corporate
+        if special:   rates["markup_special"]   = special
+    except Exception:
+        pass  # falls back to hardcoded values in pricing.js
 
     # Material rates — read from Price sheet material table area
     # Structure: { material: { brand: { gsm: rate } } }

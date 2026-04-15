@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 // If the API server is running, use it. Otherwise fall back to static JSON files.
-const API_BASE = import.meta.env.VITE_API_URL ?? ''
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8001'
 
 async function fetchWithFallback(apiPath, staticPath) {
   try {
